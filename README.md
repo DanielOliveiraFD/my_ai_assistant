@@ -1,4 +1,4 @@
-# Jarvis Caseiro
+# Jarvis
 
 Assistente de voz pessoal, local e gratuito. Ativado por "Ei Arima", com Groq
 como cérebro (STT + chat) e Piper para fala de volta, bilíngue PT/EN.
