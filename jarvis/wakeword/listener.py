@@ -1,4 +1,4 @@
-"""Escuta contínua do microfone até detectar a palavra de ativação ("Ei Arima")."""
+"""Escuta contínua do microfone até detectar a palavra de ativação ("Ok Nyx")."""
 
 import numpy as np
 import sounddevice as sd

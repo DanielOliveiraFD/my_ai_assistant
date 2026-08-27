@@ -1,6 +1,6 @@
 # Jarvis
 
-Assistente de voz pessoal, local e gratuito. Ativado por "Ei Arima", com Groq
+Assistente de voz pessoal, local e gratuito. Ativado por "Ok Nyx", com Groq
 como cérebro (STT + chat) e Piper para fala de volta, bilíngue PT/EN.
 
 Veja o plano completo do projeto para contexto de fases e decisões de design.
@@ -30,14 +30,20 @@ implementadas** — ficam para depois que este núcleo for validado no Mac.
    Confirme em console.groq.com → Data Controls que **Zero Data Retention**
    está ativado.
 
-3. **Modelo de wake word customizado ("Ei Arima")**
+3. **Modelo de wake word customizado ("Ok Nyx")**
    Ainda não existe um modelo pronto para essa frase — precisa treinar um.
    Use o [Outspoken](https://outspoken.cloud/): gera dados de voz sintética,
-   treina e entrega um modelo `.onnx` pronto em ~45 minutos, sem precisar de
-   GPU local. Baixe o resultado e salve como:
+   treina e entrega um modelo `.onnx` (duração real varia com o tier e o
+   tamanho do dataset — no tier gratuito "Balanced" costuma ficar em torno
+   de 1h, rodando na nuvem deles, sem precisar de GPU local nem deixar a
+   aba aberta). Baixe o resultado e salve como:
    ```
-   jarvis/models/hey_arima.onnx
+   jarvis/models/ok_nyx.onnx
    ```
+   Nota: o Outspoken ainda não treina em português (só inglês, holandês,
+   alemão e francês). "Ok Nyx" foi escolhido por ter pronúncia parecida
+   nos dois idiomas, o que reduz o desalinhamento fonético do treino em
+   inglês.
    Alternativa oficial (mais manual): [openWakeWord Training Center](https://openwakeword.com/train).
 
 4. **Vozes do Piper (PT e EN)**
@@ -57,7 +63,7 @@ implementadas** — ficam para depois que este núcleo for validado no Mac.
 python -m jarvis.orchestrator
 ```
 
-Diga "Ei Arima", espere o reconhecimento, fale o que quiser conversar. Ainda
+Diga "Ok Nyx", espere o reconhecimento, fale o que quiser conversar. Ainda
 não há nenhuma ferramenta/ação conectada — é só conversa livre com a IA, para
 validar a pipeline de voz de ponta a ponta antes de avançar.
 
@@ -65,7 +71,7 @@ validar a pipeline de voz de ponta a ponta antes de avançar.
 
 Siga o documento de plano, seção 8. Nesta entrega específica, valide nesta
 ordem:
-1. Detecção confiável de "Ei Arima" (sem disparo falso).
+1. Detecção confiável de "Ok Nyx" (sem disparo falso).
 2. Transcrição bate com o que foi falado.
 3. Conversa simples funciona (Groq responde coerente).
 4. Ciclo completo falar → ouvir resposta funciona.
@@ -85,7 +91,7 @@ pode ser escrito nem testado fora dele.**
 jarvis/
   config.py                     # chaves, caminhos, parâmetros ajustáveis
   orchestrator.py                # loop principal (Fase 1)
-  wakeword/listener.py            # detecção de "Ei Arima" via openWakeWord
+  wakeword/listener.py            # detecção de "Ok Nyx" via openWakeWord
   stt/transcribe.py                # gravação + transcrição via Groq Whisper
   brain/
     chat.py                         # loop de conversa + ferramentas, agnóstico de provedor

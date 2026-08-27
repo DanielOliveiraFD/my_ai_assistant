@@ -1,6 +1,6 @@
 """Loop principal do Jarvis Caseiro (Fase 1 — MVP conversacional, sem ferramentas).
 
-Ciclo: espera "Ei Arima" -> grava comando (com escuta inteligente de pausa) ->
+Ciclo: espera "Ok Nyx" -> grava comando (com escuta inteligente de pausa) ->
 transcreve -> pergunta ao cérebro -> fala a resposta -> volta a escutar.
 """
 
@@ -18,7 +18,7 @@ def run():
     listener = WakeWordListener()
     brain = Brain()
 
-    print("Jarvis Caseiro rodando. Diga 'Ei Arima' para começar.")
+    print("Jarvis Caseiro rodando. Diga 'Ok Nyx' para começar.")
 
     while True:
         listener.wait_for_wakeword()
@@ -42,7 +42,7 @@ def run():
             continue
 
         reply = brain.ask(text)
-        print(f"[Arima responde] {reply}")
+        print(f"[Nyx responde] {reply}")
         speak(reply)
 
 

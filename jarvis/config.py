@@ -13,7 +13,7 @@ load_dotenv(BASE_DIR.parent / ".env")
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
 # --- Wake word ---
-WAKEWORD_MODEL_PATH = MODELS_DIR / "hey_arima.onnx"
+WAKEWORD_MODEL_PATH = MODELS_DIR / "ok_nyx.onnx"
 WAKEWORD_THRESHOLD = 0.5
 
 # --- STT (Groq Whisper) ---
@@ -24,7 +24,7 @@ STT_MODEL = "whisper-large-v3-turbo"
 # mexer em wake word, STT, TTS ou automações. Ver jarvis/brain/factory.py.
 AI_PROVIDER = "groq"
 SYSTEM_PROMPT = (
-    "Você é o Arima, um assistente pessoal de voz que roda localmente no "
+    "Você é o Nyx, um assistente pessoal de voz que roda localmente no "
     "computador do usuário. Responda em português ou inglês, no mesmo idioma "
     "em que o usuário falou. Seja direto e breve, como convém a uma resposta "
     "falada em voz alta — evite listas longas ou formatação, prefira frases "
