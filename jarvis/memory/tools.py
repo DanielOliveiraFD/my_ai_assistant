@@ -8,6 +8,25 @@ não são uma chamada direta ao banco como as demais.
 
 from jarvis.memory import repository
 
+# Alguns modelos (observado com qwen3.6-27b no Groq) serializam a ausência
+# de um parâmetro opcional como a string literal "None"/"null" em vez de
+# omitir o campo ou usar JSON null de verdade. Por isso os schemas abaixo
+# aceitam string nesses campos, e normalize_arguments() converte esses
+# placeholders para None antes de qualquer ferramenta rodar.
+_NULL_PLACEHOLDERS = {"none", "null", ""}
+
+
+def normalize_arguments(arguments: dict) -> dict:
+    return {
+        key: (
+            None
+            if isinstance(value, str) and value.strip().lower() in _NULL_PLACEHOLDERS
+            else value
+        )
+        for key, value in arguments.items()
+    }
+
+
 TOOLS = [
     {
         "type": "function",
@@ -29,7 +48,7 @@ TOOLS = [
                     },
                     "tipo": {"type": "string", "enum": ["fato", "preferencia"]},
                     "expira_em_dias": {
-                        "type": ["number", "null"],
+                        "type": ["number", "string", "null"],
                         "description": (
                             "Opcional. Preencher só se a informação tiver prazo de "
                             "validade natural (ex: uma viagem na semana que vem). "
@@ -97,7 +116,7 @@ TOOLS = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "id": {"type": ["integer", "null"]},
+                    "id": {"type": ["integer", "string", "null"]},
                     "descricao": {"type": ["string", "null"]},
                 },
             },
@@ -119,8 +138,10 @@ TOOLS = [
 
 
 def salvar_memoria(
-    texto: str, categoria: str, tipo: str, expira_em_dias: float | None = None
+    texto: str, categoria: str, tipo: str, expira_em_dias: float | str | None = None
 ) -> dict:
+    if expira_em_dias is not None:
+        expira_em_dias = float(expira_em_dias)
     memory_id = repository.save_memory(texto, categoria, tipo, expira_em_dias)
     return {"status": "ok", "id": memory_id}
 

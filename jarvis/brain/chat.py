@@ -8,7 +8,7 @@ import json
 from jarvis import config
 from jarvis.brain.factory import get_provider
 from jarvis.memory import repository
-from jarvis.memory.tools import DISPATCH, TOOLS
+from jarvis.memory.tools import DISPATCH, TOOLS, normalize_arguments
 
 MAX_TOOL_ROUNDS = 5
 
@@ -75,6 +75,8 @@ class Brain:
         return fallback
 
     def _execute_tool(self, name: str, arguments: dict) -> dict:
+        arguments = normalize_arguments(arguments)
+
         if name == "excluir_memoria":
             return self._propose_deletion(arguments)
         if name == "confirmar_exclusao":
@@ -88,6 +90,9 @@ class Brain:
     def _propose_deletion(self, arguments: dict) -> dict:
         memory_id = arguments.get("id")
         descricao = arguments.get("descricao")
+
+        if isinstance(memory_id, str) and memory_id.strip().isdigit():
+            memory_id = int(memory_id.strip())
 
         if memory_id is not None:
             memoria = repository.get_memory(memory_id)
