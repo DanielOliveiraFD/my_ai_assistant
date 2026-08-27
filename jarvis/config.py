@@ -31,6 +31,9 @@ SYSTEM_PROMPT = (
     "curtas e naturais."
 )
 
+# --- Memória de longo prazo (SQLite local) ---
+MEMORY_DB_PATH = BASE_DIR / "memory.sqlite3"
+
 # --- TTS (Piper) ---
 PIPER_VOICES = {
     "pt": MODELS_DIR / "pt_BR-faber-medium.onnx",

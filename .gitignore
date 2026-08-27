@@ -1,6 +1,9 @@
 # Segredos
 .env
 
+# Memória de longo prazo (dados pessoais do usuário, nunca versionar)
+jarvis/memory.sqlite3
+
 # Python
 __pycache__/
 *.pyc
