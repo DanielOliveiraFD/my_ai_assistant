@@ -10,7 +10,7 @@ from groq import Groq
 
 from jarvis.brain.base import AIProvider, ChatResult, ToolCall
 
-MODEL = "openai/gpt-oss-120b"
+MODEL = "qwen/qwen3.6-27b"
 
 
 class GroqProvider(AIProvider):
@@ -18,7 +18,11 @@ class GroqProvider(AIProvider):
         self._client = Groq(api_key=api_key)
 
     def chat(self, messages: list[dict], tools: list[dict] | None = None) -> ChatResult:
-        kwargs = {"model": MODEL, "messages": messages}
+        # reasoning_effort="none" desliga o modo de raciocínio: este é um
+        # assistente de diálogo geral, não precisa de "pensar em voz alta",
+        # e deixar ligado arrisca vazar texto de raciocínio na resposta
+        # final (bug conhecido com modelos de raciocínio no Groq).
+        kwargs = {"model": MODEL, "messages": messages, "reasoning_effort": "none"}
         if tools:
             kwargs["tools"] = tools
             kwargs["tool_choice"] = "auto"

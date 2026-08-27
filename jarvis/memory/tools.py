@@ -29,10 +29,11 @@ TOOLS = [
                     },
                     "tipo": {"type": "string", "enum": ["fato", "preferencia"]},
                     "expira_em_dias": {
-                        "type": "number",
+                        "type": ["number", "null"],
                         "description": (
                             "Opcional. Preencher só se a informação tiver prazo de "
-                            "validade natural (ex: uma viagem na semana que vem)."
+                            "validade natural (ex: uma viagem na semana que vem). "
+                            "Usar null quando não houver expiração."
                         ),
                     },
                 },
@@ -62,8 +63,8 @@ TOOLS = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "categoria": {"type": "string"},
-                    "texto_chave": {"type": "string"},
+                    "categoria": {"type": ["string", "null"]},
+                    "texto_chave": {"type": ["string", "null"]},
                 },
             },
         },
@@ -79,7 +80,7 @@ TOOLS = [
             ),
             "parameters": {
                 "type": "object",
-                "properties": {"categoria": {"type": "string"}},
+                "properties": {"categoria": {"type": ["string", "null"]}},
             },
         },
     },
@@ -96,8 +97,8 @@ TOOLS = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "id": {"type": "integer"},
-                    "descricao": {"type": "string"},
+                    "id": {"type": ["integer", "null"]},
+                    "descricao": {"type": ["string", "null"]},
                 },
             },
         },
