@@ -5,6 +5,11 @@ from datetime import datetime, timedelta
 
 from jarvis.memory.db import get_connection
 
+# "rotina" está listado aqui porque o schema já suporta (coluna `passos`),
+# mas ainda não há ferramentas que criem memórias desse tipo — fica para
+# quando a Fase 2 trouxer ações reais para uma rotina executar.
+TIPOS_VALIDOS = ("fato", "preferencia", "rotina")
+
 
 def _not_expired_clause() -> str:
     return "(data_expiracao IS NULL OR data_expiracao > ?)"
@@ -13,6 +18,9 @@ def _not_expired_clause() -> str:
 def save_memory(
     texto: str, categoria: str, tipo: str, expira_em_dias: float | None = None
 ) -> int:
+    if tipo not in TIPOS_VALIDOS:
+        raise ValueError(f"tipo inválido: {tipo!r} (esperado um de {TIPOS_VALIDOS})")
+
     data_criacao = datetime.now().isoformat()
     data_expiracao = (
         (datetime.now() + timedelta(days=expira_em_dias)).isoformat()

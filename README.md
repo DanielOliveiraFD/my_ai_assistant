@@ -130,6 +130,14 @@ só **propõe** o que seria apagado — nunca apaga nada sozinha. A exclusão de
 fato só acontece se, na resposta seguinte, você confirmar em voz e a IA
 chamar `confirmar_exclusao`. Sem essa segunda confirmação, nada é apagado.
 
+**Rotinas (`tipo = "rotina"`) — schema pronto, funcionalidade adiada.** O
+banco já tem a coluna `passos` e aceita esse tipo, mas ainda não existe
+nenhuma ferramenta (`salvar_rotina`/`verificar_rotina`) que crie ou dispare
+rotinas. Decisão consciente: uma rotina só faz sentido quando existir pelo
+menos uma ação real pra executar (abrir um app, mexer em arquivo, etc.) —
+isso é Fase 2 em diante. Implementar rotinas agora resultaria em um teste
+que só confirma "ele fala sobre executar", não que ele executa de fato.
+
 Preferências (`tipo = "preferencia"`) são carregadas automaticamente no
 prompt do sistema assim que o programa inicia — não dependem da IA decidir
 buscar.
