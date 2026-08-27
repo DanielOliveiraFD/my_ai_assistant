@@ -39,7 +39,7 @@ MEMORY_DB_PATH = BASE_DIR / "memory.sqlite3"
 
 # --- TTS (Piper) ---
 PIPER_VOICES = {
-    "pt": MODELS_DIR / "pt_BR-faber-medium.onnx",
+    "pt": MODELS_DIR / "pt_BR-cadu-medium.onnx",
     "en": MODELS_DIR / "en_US-lessac-medium.onnx",
 }
 DEFAULT_TTS_LANGUAGE = "pt"
