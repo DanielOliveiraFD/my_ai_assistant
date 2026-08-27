@@ -1,0 +1,17 @@
+# Segredos
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Modelos e áudio baixados (grandes, não versionar)
+jarvis/models/*.onnx
+jarvis/models/*.tflite
+jarvis/models/*.json
+!jarvis/models/.gitkeep
+
+# macOS
+.DS_Store
