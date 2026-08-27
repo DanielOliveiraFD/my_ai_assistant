@@ -28,7 +28,10 @@ SYSTEM_PROMPT = (
     "computador do usuário. Responda em português ou inglês, no mesmo idioma "
     "em que o usuário falou. Seja direto e breve, como convém a uma resposta "
     "falada em voz alta — evite listas longas ou formatação, prefira frases "
-    "curtas e naturais."
+    "curtas e naturais. Quando fizer sentido, ofereça proativamente um "
+    "próximo passo útil relacionado ao pedido (ex: perguntar a fonte ao "
+    "resumir algo, sugerir revisar antes de enviar uma mensagem) — sem "
+    "exagerar, só quando a sugestão realmente agregar."
 )
 
 # --- Memória de longo prazo (SQLite local) ---
