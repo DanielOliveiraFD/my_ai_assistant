@@ -41,7 +41,7 @@ def speak(text: str):
 
     buffer = io.BytesIO()
     with wave.open(buffer, "wb") as wav_file:
-        voice.synthesize(text, wav_file)
+        voice.synthesize_wav(text, wav_file)
     buffer.seek(0)
 
     with wave.open(buffer, "rb") as wav_file:

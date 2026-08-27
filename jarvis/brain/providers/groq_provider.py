@@ -10,7 +10,7 @@ from groq import Groq
 
 from jarvis.brain.base import AIProvider, ChatResult, ToolCall
 
-MODEL = "llama-3.3-70b-versatile"
+MODEL = "openai/gpt-oss-120b"
 
 
 class GroqProvider(AIProvider):
