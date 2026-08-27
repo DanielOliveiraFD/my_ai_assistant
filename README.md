@@ -83,11 +83,28 @@ pode ser escrito nem testado fora dele.**
 
 ```
 jarvis/
-  config.py          # chaves, caminhos, parâmetros ajustáveis
-  orchestrator.py     # loop principal (Fase 1)
-  wakeword/listener.py # detecção de "Ei Arima" via openWakeWord
-  stt/transcribe.py    # gravação + transcrição via Groq Whisper
-  brain/chat.py         # conversa com Groq (histórico de sessão)
-  tts/speak.py           # fala de volta via Piper, PT/EN automático
-  models/                # .onnx dos modelos (não versionado, ver .gitignore)
+  config.py                     # chaves, caminhos, parâmetros ajustáveis
+  orchestrator.py                # loop principal (Fase 1)
+  wakeword/listener.py            # detecção de "Ei Arima" via openWakeWord
+  stt/transcribe.py                # gravação + transcrição via Groq Whisper
+  brain/
+    chat.py                         # histórico da conversa, agnóstico de provedor
+    base.py                          # interface AIProvider
+    factory.py                       # escolhe o provedor configurado (config.AI_PROVIDER)
+    providers/groq_provider.py        # implementação específica do Groq
+  tts/speak.py                   # fala de volta via Piper, PT/EN automático
+  models/                       # .onnx dos modelos (não versionado, ver .gitignore)
 ```
+
+### Módulo do cérebro (`jarvis/brain/`)
+
+Isolado por design: `chat.py` só conhece a interface `AIProvider` (`base.py`),
+nunca o SDK do Groq diretamente. Toda a lógica específica do Groq (SDK,
+nome do modelo, formato da chamada) fica em `providers/groq_provider.py`.
+
+Para trocar de provedor de IA no futuro:
+1. Criar `jarvis/brain/providers/novo_provider.py` implementando `AIProvider.chat()`
+2. Adicionar um ramo em `jarvis/brain/factory.py`
+3. Mudar `AI_PROVIDER` em `config.py`
+
+Nenhum outro módulo (wake word, STT, TTS, automações do macOS) precisa mudar.

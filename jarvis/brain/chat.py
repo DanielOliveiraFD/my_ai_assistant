@@ -1,23 +1,17 @@
-"""Cérebro do assistente: conversa com o Groq mantendo histórico da sessão."""
-
-from groq import Groq
+"""Cérebro do assistente: mantém o histórico da conversa e delega ao provedor de IA configurado."""
 
 from jarvis import config
-
-_client = Groq(api_key=config.GROQ_API_KEY)
+from jarvis.brain.factory import get_provider
 
 
 class Brain:
     def __init__(self):
+        self._provider = get_provider()
         self.history = [{"role": "system", "content": config.SYSTEM_PROMPT}]
 
     def ask(self, user_text: str) -> str:
         self.history.append({"role": "user", "content": user_text})
-        response = _client.chat.completions.create(
-            model=config.BRAIN_MODEL,
-            messages=self.history,
-        )
-        reply = response.choices[0].message.content.strip()
+        reply = self._provider.chat(self.history)
         self.history.append({"role": "assistant", "content": reply})
         return reply
 

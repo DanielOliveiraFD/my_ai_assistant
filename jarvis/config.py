@@ -19,8 +19,10 @@ WAKEWORD_THRESHOLD = 0.5
 # --- STT (Groq Whisper) ---
 STT_MODEL = "whisper-large-v3-turbo"
 
-# --- Cérebro (Groq chat) ---
-BRAIN_MODEL = "llama-3.3-70b-versatile"
+# --- Cérebro (provedor de IA) ---
+# Módulo isolado em jarvis/brain/ — trocar de provedor no futuro não exige
+# mexer em wake word, STT, TTS ou automações. Ver jarvis/brain/factory.py.
+AI_PROVIDER = "groq"
 SYSTEM_PROMPT = (
     "Você é o Arima, um assistente pessoal de voz que roda localmente no "
     "computador do usuário. Responda em português ou inglês, no mesmo idioma "
