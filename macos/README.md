@@ -1,34 +1,38 @@
-# Rodando o Jarvis sem Terminal
+# Rodando o Jarvis sem digitar comando
 
-## Caminho recomendado: app clicável (não inicia sozinho)
+## Caminho recomendado: `Jarvis.command` (não inicia sozinho)
 
-Cria um `Jarvis.app` de verdade — dá dois cliques quando quiser usar, fecha
-quando não quiser. Não abre sozinho no login.
+Dê dois cliques em `macos/Jarvis.command` sempre que quiser abrir o Jarvis.
+Não precisa digitar nada nem rodar nenhum script antes — os caminhos são
+resolvidos sozinhos.
+
+Isso abre uma **janela de Terminal por trás**. É proposital: o Terminal já
+tem a permissão de microfone concedida nos testes anteriores, e é o jeito
+mais confiável de garantir que o microfone funcione sem o macOS negar
+acesso em silêncio (ver nota abaixo sobre o `.app`). Pode minimizar essa
+janela, mas não feche — fechar a janela encerra o Jarvis também.
+
+Se quiser mais fácil de achar, arraste `macos/Jarvis.command` pro Dock.
+
+Não abre sozinho no login — só quando você clicar.
 
 ### Pré-requisito
 
 O venv já precisa existir e ter todas as dependências instaladas
 (`jarvis/.venv`, ver README.md principal, seção Setup).
 
-### Montar o app
+---
 
-```bash
-macos/build_app.sh
-```
+## `Jarvis.app` (experimental, com problema conhecido de permissão)
 
-Isso gera `macos/Jarvis.app` com os caminhos do seu projeto já preenchidos.
-Depois:
-- Dê dois cliques nele pra abrir — o ícone aparece na barra de menu
-  (desligado por padrão, clique em "Ligar")
-- Se quiser mais fácil de achar, arraste `macos/Jarvis.app` pro Dock ou pra
-  pasta `/Applications`
-
-Se você mudar o código do projeto ou mover a pasta, rode `macos/build_app.sh`
-de novo pra atualizar o app.
-
-`macos/Jarvis.app` não é versionado no Git (tem caminhos específicos da sua
-máquina) — só o template (`Jarvis.app.template/`) é. Cada máquina precisa
-rodar `build_app.sh` uma vez.
+Também existe um `macos/build_app.sh` que gera um `Jarvis.app` de verdade,
+sem janela de Terminal visível. **Ele tem um problema não resolvido**: como
+não é assinado digitalmente pela Apple, o macOS não consegue ligar o
+processo do Python ao app corretamente, e nega a permissão de microfone em
+silêncio (sem mostrar nem o prompt de permissão). Resolver isso direito
+exigiria assinatura de código mais elaborada — fora do escopo agora. Fica
+disponível no repositório, mas **use o `Jarvis.command` acima**, que é o
+caminho testado e funcionando.
 
 ---
 
@@ -56,10 +60,11 @@ macos/uninstall_launch_agent.sh
 
 ## Logs
 
-Como o app roda sem Terminal, a saída (`print`, erros) vai para:
+O `Jarvis.command` mostra a saída direto na janela de Terminal que abre
+(mesmo formato de quando você roda `python -m jarvis.app` manualmente).
+
+O `Jarvis.app` (experimental) manda a saída para:
 ```
 jarvis/logs/jarvis.log
 jarvis/logs/jarvis.error.log
 ```
-Útil para depurar se o ícone não aparecer ou o Ligar/Desligar não funcionar
-como esperado.

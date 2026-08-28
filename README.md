@@ -107,12 +107,13 @@ jarvis/
   logs/                          # saída do LaunchAgent (não versionado)
   memory.sqlite3                # banco de memória de longo prazo (não versionado)
 macos/
-  Jarvis.app.template/                  # modelo do app clicável (recomendado)
-  build_app.sh                           # monta macos/Jarvis.app (não versionado)
-  com.danielofd.jarvis.plist.template  # modelo do LaunchAgent (opcional, auto-início)
-  install_launch_agent.sh               # instala e carrega o LaunchAgent
-  uninstall_launch_agent.sh             # remove o LaunchAgent
-  README.md                             # instruções detalhadas
+  Jarvis.command                         # clicável, recomendado — abre com Terminal por trás
+  Jarvis.app.template/                    # modelo do app clicável (experimental, ver macos/README.md)
+  build_app.sh                             # monta macos/Jarvis.app (não versionado)
+  com.danielofd.jarvis.plist.template    # modelo do LaunchAgent (opcional, auto-início)
+  install_launch_agent.sh                 # instala e carrega o LaunchAgent
+  uninstall_launch_agent.sh               # remove o LaunchAgent
+  README.md                               # instruções detalhadas
 ```
 
 ### Módulo do cérebro (`jarvis/brain/`)
@@ -198,16 +199,18 @@ sozinho no login — você abre quando quiser, como qualquer outro app.
          programa
    - [ ] "Sair" fecha o app completamente (não aparece mais na barra)
 
-2. **App clicável** (ver `macos/README.md`):
-   ```bash
-   macos/build_app.sh
-   ```
-   - [ ] Dois cliques em `macos/Jarvis.app` abre o Jarvis (mesmo
-         comportamento do item 1, sem precisar de Terminal)
-   - [ ] Fechar o app (Sair no menu) e abrir de novo com dois cliques
+2. **Clicável sem Terminal** — `macos/Jarvis.command` (ver `macos/README.md`
+   para detalhes e por que não é um `.app` puro):
+   - [ ] Dois cliques em `macos/Jarvis.command` abre uma janela de Terminal
+         e o Jarvis inicia nela (mesmo comportamento do item 1)
+   - [ ] Fechar o Jarvis (Sair no menu) e abrir de novo com dois cliques
          funciona normalmente
    - [ ] Reiniciar o Mac: o Jarvis **não** abre sozinho (comportamento
          esperado — só abre quando você clicar)
+
+   `macos/Jarvis.app` (gerado por `macos/build_app.sh`) é experimental e
+   tem um problema conhecido de permissão de microfone sem solução no
+   momento — não é o caminho recomendado, ver `macos/README.md`.
 
 O LaunchAgent (auto-início no login) continua disponível como opção à parte
 em `macos/README.md`, mas não é o caminho padrão do projeto.
