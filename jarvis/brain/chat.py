@@ -27,10 +27,11 @@ def _build_system_prompt() -> str:
 
 
 class Brain:
-    def __init__(self):
+    def __init__(self, debug: bool = False):
         self._provider = get_provider()
         self.history = [{"role": "system", "content": _build_system_prompt()}]
         self._pending_deletion_id = None
+        self._debug = debug
 
     def ask(self, user_text: str) -> str:
         self.history.append({"role": "user", "content": user_text})
@@ -76,16 +77,24 @@ class Brain:
 
     def _execute_tool(self, name: str, arguments: dict) -> dict:
         arguments = normalize_arguments(arguments)
+        if self._debug:
+            print(f"[debug] chamou {name}({arguments})")
 
         if name == "excluir_memoria":
-            return self._propose_deletion(arguments)
-        if name == "confirmar_exclusao":
-            return self._confirm_deletion()
+            result = self._propose_deletion(arguments)
+        elif name == "confirmar_exclusao":
+            result = self._confirm_deletion()
+        else:
+            handler = DISPATCH.get(name)
+            result = (
+                {"erro": f"ferramenta desconhecida: {name}"}
+                if handler is None
+                else handler(**arguments)
+            )
 
-        handler = DISPATCH.get(name)
-        if handler is None:
-            return {"erro": f"ferramenta desconhecida: {name}"}
-        return handler(**arguments)
+        if self._debug:
+            print(f"[debug] {name} retornou: {result}")
+        return result
 
     def _propose_deletion(self, arguments: dict) -> dict:
         memory_id = arguments.get("id")

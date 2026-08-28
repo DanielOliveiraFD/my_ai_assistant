@@ -15,8 +15,9 @@ from jarvis.brain.chat import Brain
 
 
 def main():
-    brain = Brain()
-    print("Conversando por texto com o cérebro. Digite 'sair' para encerrar.\n")
+    brain = Brain(debug=True)
+    print("Conversando por texto com o cérebro. Digite 'sair' para encerrar.")
+    print("(modo debug: mostra qual ferramenta é chamada e o que ela retorna)\n")
 
     while True:
         user_text = input("Você: ").strip()
