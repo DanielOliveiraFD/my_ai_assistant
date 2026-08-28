@@ -1,11 +1,14 @@
 """Cérebro do assistente: mantém o histórico da conversa, injeta as
 preferências salvas no início da sessão, e executa o loop de chamadas de
-ferramenta (memória + busca na web) até a IA produzir uma resposta final.
+ferramenta (memória + busca na web + ações no macOS) até a IA produzir uma
+resposta final.
 """
 
 import json
 
 from jarvis import config
+from jarvis.actions.tools import DISPATCH as ACTIONS_DISPATCH
+from jarvis.actions.tools import TOOLS as ACTIONS_TOOLS
 from jarvis.brain.factory import get_provider
 from jarvis.memory import repository
 from jarvis.memory.tools import DISPATCH as MEMORY_DISPATCH
@@ -14,8 +17,8 @@ from jarvis.memory.tools import normalize_arguments
 from jarvis.websearch.tools import DISPATCH as WEBSEARCH_DISPATCH
 from jarvis.websearch.tools import TOOLS as WEBSEARCH_TOOLS
 
-TOOLS = MEMORY_TOOLS + WEBSEARCH_TOOLS
-DISPATCH = {**MEMORY_DISPATCH, **WEBSEARCH_DISPATCH}
+TOOLS = MEMORY_TOOLS + WEBSEARCH_TOOLS + ACTIONS_TOOLS
+DISPATCH = {**MEMORY_DISPATCH, **WEBSEARCH_DISPATCH, **ACTIONS_DISPATCH}
 
 MAX_TOOL_ROUNDS = 5
 

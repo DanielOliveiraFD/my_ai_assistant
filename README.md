@@ -11,9 +11,16 @@ Veja o plano completo do projeto para contexto de fases e decisões de design.
 transcrição, cérebro com memória de longo prazo, fala e a janela de
 acompanhamento pós-resposta já foram testados de ponta a ponta com voz real.
 
-**LaunchAgent + ícone de barra de menu — código pronto, ainda não testado.**
-Fecha o resto da Fase 1: rodar em segundo plano sem Terminal, com controle de
-Ligar/Desligar. Só pode ser testado no Mac (ver seção de testes abaixo).
+**LaunchAgent + ícone de barra de menu — validado no Mac.** `macos/Jarvis.command`
+é o caminho recomendado (ver `macos/README.md` — o `.app` puro esbarra num
+problema de permissão de microfone sem solução no momento).
+
+**Busca na web (Tavily) — validada no Mac.** O assistente pesquisa
+informação atual quando não sabe a resposta, sem abrir navegador nenhum.
+
+**Fase 2 (em andamento) — ações no macOS.** Primeira ação real: pesquisar e
+abrir sites no Safari (`jarvis/actions/`). Código pronto, ainda não testado
+— só pode ser testado no Mac (ver seção de testes abaixo).
 
 ## Setup (fazer no Mac, antes de testar)
 
@@ -102,6 +109,12 @@ jarvis/
     db.py                             # conexão + schema do SQLite
     repository.py                      # CRUD da memória de longo prazo
     tools.py                            # ferramentas de memória expostas à IA
+  websearch/
+    client.py                          # busca via Tavily
+    tools.py                            # ferramenta buscar_na_web exposta à IA
+  actions/
+    safari.py                          # pesquisar/abrir site no Safari (AppleScript)
+    tools.py                            # ferramentas de ação expostas à IA
   tts/speak.py                   # fala de volta via Piper, PT/EN automático
   models/                       # .onnx dos modelos (não versionado, ver .gitignore)
   logs/                          # saída do LaunchAgent (não versionado)
@@ -156,6 +169,42 @@ que só confirma "ele fala sobre executar", não que ele executa de fato.
 Preferências (`tipo = "preferencia"`) são carregadas automaticamente no
 prompt do sistema assim que o programa inicia — não dependem da IA decidir
 buscar.
+
+### Módulo de busca na web (`jarvis/websearch/`)
+
+Isolado, mesmo padrão dos outros: só `brain/chat.py` importa daqui. Usa a
+API da Tavily (precisa de `TAVILY_API_KEY` no `.env` — conta grátis em
+[tavily.com](https://tavily.com/)). Devolve só os resultados brutos da
+busca, nunca uma resposta pronta — quem formula a resposta final falada é
+o cérebro principal, que já segue o idioma do usuário corretamente.
+
+### Módulo de ações (`jarvis/actions/`) — Fase 2
+
+Primeira peça da Fase 2: ações reais no macOS via AppleScript
+(`osascript`), isoladas do resto do projeto. Hoje só tem Safari
+(`pesquisar_no_safari`, `abrir_site_no_safari`); mais ações (arquivos,
+calendário, etc.) entram aqui conforme a Fase 2 avança. Exige permissão de
+Automação do macOS na primeira execução (Ajustes do Sistema > Privacidade
+e Segurança > Automação).
+
+## Pontos de teste desta entrega (Safari — Fase 2)
+
+Primeira ação real do projeto. Só pode ser testado no Mac:
+
+```bash
+python test_safari.py
+```
+
+- [ ] Na primeira execução, o macOS pede permissão de Automação para o
+      Python controlar o Safari — aceite
+- [ ] `pesquisar_no_safari` abre o Safari numa aba nova com os resultados
+      do Google para o termo pedido
+- [ ] `abrir_site_no_safari` abre o site certo numa aba nova (teste com
+      domínio simples, tipo `github.com`, e com URL completa)
+- [ ] Testado por voz/`test_brain.py`: pedir para "pesquisar X" e "abrir o
+      site Y" numa conversa normal, confirmando que a IA escolhe a
+      ferramenta certa para cada pedido
+- [ ] Testar um comando ambíguo (ex: "abre o Google") e ver como reage
 
 ## Pontos de teste desta entrega (memória de longo prazo)
 
