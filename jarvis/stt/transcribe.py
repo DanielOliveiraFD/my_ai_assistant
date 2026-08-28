@@ -28,7 +28,7 @@ def _rms(chunk: np.ndarray) -> float:
     return float(np.sqrt(np.mean(chunk.astype(np.float64) ** 2)))
 
 
-def record_command(pre_speech_timeout: float | None = None) -> np.ndarray:
+def record_command(pre_speech_timeout: float | None = None, stop_event=None) -> np.ndarray:
     """Grava áudio do microfone até detectar silêncio depois do usuário falar.
 
     `pre_speech_timeout` é quanto tempo esperar em silêncio ANTES do usuário
@@ -37,6 +37,9 @@ def record_command(pre_speech_timeout: float | None = None) -> np.ndarray:
     Se None, usa config.SILENCE_TIMEOUT_SECONDS (comportamento padrão logo
     após o wake word). Depois que a fala começa, sempre usa
     config.SILENCE_TIMEOUT_SECONDS como corte de silêncio de fim de frase.
+
+    `stop_event`, se marcado no meio da gravação, interrompe e retorna o que
+    já foi capturado até então (usado pelo app de barra de menu).
     """
     if pre_speech_timeout is None:
         pre_speech_timeout = config.SILENCE_TIMEOUT_SECONDS
@@ -50,6 +53,8 @@ def record_command(pre_speech_timeout: float | None = None) -> np.ndarray:
         samplerate=SAMPLE_RATE, channels=1, dtype="int16", blocksize=CHUNK_SAMPLES
     ) as stream:
         while total_seconds < MAX_RECORDING_SECONDS:
+            if stop_event is not None and stop_event.is_set():
+                break
             chunk, _ = stream.read(CHUNK_SAMPLES)
             chunk = np.squeeze(chunk)
             frames.append(chunk)

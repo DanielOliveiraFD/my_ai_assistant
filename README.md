@@ -7,10 +7,13 @@ Veja o plano completo do projeto para contexto de fases e decisões de design.
 
 ## Status
 
-**Fase 1 (MVP conversacional) — código pronto, ainda não testado.**
-Este código só roda de fato e só deve ser testado no MacBook. As partes
-específicas do macOS (LaunchAgent, ícone de barra de menu) **ainda não foram
-implementadas** — ficam para depois que este núcleo for validado no Mac.
+**Fase 1 (MVP conversacional + memória) — validada no Mac.** Wake word,
+transcrição, cérebro com memória de longo prazo, fala e a janela de
+acompanhamento pós-resposta já foram testados de ponta a ponta com voz real.
+
+**LaunchAgent + ícone de barra de menu — código pronto, ainda não testado.**
+Fecha o resto da Fase 1: rodar em segundo plano sem Terminal, com controle de
+Ligar/Desligar. Só pode ser testado no Mac (ver seção de testes abaixo).
 
 ## Setup (fazer no Mac, antes de testar)
 
@@ -50,7 +53,7 @@ implementadas** — ficam para depois que este núcleo for validado no Mac.
    Baixe os dois modelos de voz do repositório oficial
    ([rhasspy/piper-voices](https://huggingface.co/rhasspy/piper-voices)) e
    salve em `jarvis/models/`:
-   - `pt_BR-faber-medium.onnx` (+ `.onnx.json`)
+   - `pt_BR-cadu-medium.onnx` (+ `.onnx.json`)
    - `en_US-lessac-medium.onnx` (+ `.onnx.json`)
 
 5. **Permissões do macOS**
@@ -81,16 +84,13 @@ ordem:
 6. Bilíngue: fale em português, depois em inglês, confirme que a voz troca
    corretamente — inclusive trocando de idioma no meio da sessão.
 
-**Depois de validar tudo isso no Mac, voltamos para implementar o
-LaunchAgent e o ícone de barra de menu — código exclusivo de macOS que não
-pode ser escrito nem testado fora dele.**
-
 ## Estrutura
 
 ```
 jarvis/
   config.py                     # chaves, caminhos, parâmetros ajustáveis
-  orchestrator.py                # loop principal (Fase 1)
+  orchestrator.py                # loop principal (Fase 1), aceita stop_event
+  app.py                          # app de barra de menu (Ligar/Desligar)
   wakeword/listener.py            # detecção de "Ok Nyx" via openWakeWord
   stt/transcribe.py                # gravação + transcrição via Groq Whisper
   brain/
@@ -104,7 +104,13 @@ jarvis/
     tools.py                            # ferramentas de memória expostas à IA
   tts/speak.py                   # fala de volta via Piper, PT/EN automático
   models/                       # .onnx dos modelos (não versionado, ver .gitignore)
+  logs/                          # saída do LaunchAgent (não versionado)
   memory.sqlite3                # banco de memória de longo prazo (não versionado)
+macos/
+  com.danielofd.jarvis.plist.template  # modelo do LaunchAgent
+  install_launch_agent.sh               # instala e carrega o LaunchAgent
+  uninstall_launch_agent.sh             # remove o LaunchAgent
+  README.md                             # instruções detalhadas
 ```
 
 ### Módulo do cérebro (`jarvis/brain/`)
@@ -170,3 +176,32 @@ memória, seguindo a seção 7 do documento de arquitetura de memória:
 - [ ] Salvar uma preferência (ex: "prefiro respostas curtas") e confirmar
       que o comportamento do assistente muda de fato nas respostas
       seguintes, mesmo em uma sessão nova.
+
+## Pontos de teste desta entrega (LaunchAgent + barra de menu)
+
+Fecha a Fase 1. Só pode ser testado no Mac:
+
+1. **App de barra de menu isolado primeiro** (sem LaunchAgent ainda):
+   ```bash
+   python -m jarvis.app
+   ```
+   - [ ] O ícone "⚪ Jarvis" aparece na barra de menu
+   - [ ] Clicar em "Ligar" muda pra "🟢 Jarvis" e o assistente passa a
+         responder a "Ok Nyx" normalmente
+   - [ ] Clicar em "Desligar" muda de volta pra "⚪ Jarvis" e ele **para de
+         responder** ao wake word (mesmo no meio de uma escuta) — não deve
+         travar nem demorar mais que ~1s pra parar
+   - [ ] Ligar de novo depois de desligar funciona sem precisar reiniciar o
+         programa
+   - [ ] "Sair" fecha o app completamente (não aparece mais na barra)
+
+2. **LaunchAgent** (depois do app isolado funcionar):
+   ```bash
+   macos/install_launch_agent.sh
+   ```
+   - [ ] O ícone aparece sozinho, sem você ter rodado nada no Terminal
+   - [ ] Reiniciar o Mac: o ícone volta a aparecer sozinho, sem login manual
+         nem Terminal aberto
+   - [ ] Ligar/Desligar continuam funcionando normalmente rodando via
+         LaunchAgent
+   - [ ] Se algo não aparecer, checar `jarvis/logs/jarvis.error.log`

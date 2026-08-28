@@ -28,16 +28,20 @@ class WakeWordListener:
         )
         self.model_name = config.WAKEWORD_MODEL_PATH.stem
 
-    def wait_for_wakeword(self):
-        """Bloqueia até detectar a palavra de ativação. Retorna quando dispara."""
+    def wait_for_wakeword(self, stop_event=None) -> bool:
+        """Bloqueia até detectar a palavra de ativação ou até `stop_event` ser
+        sinalizado. Retorna True se detectou, False se foi interrompido
+        (usado pelo app de barra de menu para desligar a escuta)."""
         with sd.InputStream(
             samplerate=SAMPLE_RATE, channels=1, dtype="int16", blocksize=CHUNK_SIZE
         ) as stream:
             while True:
+                if stop_event is not None and stop_event.is_set():
+                    return False
                 audio_chunk, _ = stream.read(CHUNK_SIZE)
                 audio = np.squeeze(audio_chunk)
                 predictions = self.model.predict(audio)
                 score = predictions.get(self.model_name, 0.0)
                 if score >= config.WAKEWORD_THRESHOLD:
                     self.model.reset()
-                    return
+                    return True

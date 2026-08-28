@@ -16,5 +16,9 @@ jarvis/models/*.tflite
 jarvis/models/*.json
 !jarvis/models/.gitkeep
 
+# Logs do LaunchAgent
+jarvis/logs/*.log
+!jarvis/logs/.gitkeep
+
 # macOS
 .DS_Store
