@@ -11,6 +11,7 @@ MODELS_DIR = BASE_DIR / "models"
 load_dotenv(BASE_DIR.parent / ".env")
 
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY")
 
 # --- Wake word ---
 WAKEWORD_MODEL_PATH = MODELS_DIR / "ok_nyx.onnx"
