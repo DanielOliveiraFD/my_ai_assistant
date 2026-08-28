@@ -22,6 +22,8 @@ from jarvis import config
 
 API_URL = "https://api.tavily.com/search"
 TIMEOUT_SECONDS = 15
+MAX_RESULTS = 2
+CONTENT_CHAR_LIMIT = 300  # por resultado, evita inchar o histórico da conversa
 
 # Alguns Pythons instalados no macOS (via python.org) não vêm com os
 # certificados raiz do sistema configurados, causando
@@ -38,7 +40,7 @@ def search(query: str) -> str:
     payload = {
         "api_key": config.TAVILY_API_KEY,
         "query": query,
-        "max_results": 3,
+        "max_results": MAX_RESULTS,
     }
     request = urllib.request.Request(
         API_URL,
@@ -64,6 +66,13 @@ def search(query: str) -> str:
     if not results:
         return "Não encontrei nada relevante sobre isso."
 
-    return "\n".join(
-        f"- {r.get('title', '')}: {r.get('content', '')}" for r in results[:3]
-    )
+    # Corta o conteúdo de cada resultado: sem isso, respostas de sites tipo
+    # previsão do tempo (tabela de vários dias + alertas) inflam demais o
+    # histórico da conversa — cada busca nova soma ao que já foi guardado,
+    # e o cérebro fica cada vez mais lento a cada pergunta na mesma sessão
+    # (visto no teste manual: 3s -> 14s -> 53s em buscas seguidas).
+    linhas = []
+    for r in results[:MAX_RESULTS]:
+        conteudo = r.get("content", "")[:CONTENT_CHAR_LIMIT]
+        linhas.append(f"- {r.get('title', '')}: {conteudo}")
+    return "\n".join(linhas)
