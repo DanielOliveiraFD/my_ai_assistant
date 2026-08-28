@@ -113,8 +113,10 @@ jarvis/
     client.py                          # busca via Tavily
     tools.py                            # ferramenta buscar_na_web exposta à IA
   actions/
-    safari.py                          # pesquisar/abrir site no Safari (AppleScript)
-    tools.py                            # ferramentas de ação expostas à IA
+    apps.py                             # abrir qualquer app pelo nome
+    safari.py                            # pesquisar/abrir site no Safari (AppleScript)
+    system.py                             # volume, brilho, modo escuro, print, atalhos
+    tools.py                               # ferramentas de ação expostas à IA
   tts/speak.py                   # fala de volta via Piper, PT/EN automático
   models/                       # .onnx dos modelos (não versionado, ver .gitignore)
   logs/                          # saída do LaunchAgent (não versionado)
@@ -180,12 +182,23 @@ o cérebro principal, que já segue o idioma do usuário corretamente.
 
 ### Módulo de ações (`jarvis/actions/`) — Fase 2
 
-Primeira peça da Fase 2: ações reais no macOS via AppleScript
-(`osascript`), isoladas do resto do projeto. Hoje só tem Safari
-(`pesquisar_no_safari`, `abrir_site_no_safari`); mais ações (arquivos,
-calendário, etc.) entram aqui conforme a Fase 2 avança. Exige permissão de
-Automação do macOS na primeira execução (Ajustes do Sistema > Privacidade
-e Segurança > Automação).
+Ações reais no macOS via AppleScript/comandos nativos (`osascript`,
+`screencapture`, `shortcuts`), isoladas do resto do projeto. Hoje tem
+Safari (`pesquisar_no_safari`, `abrir_site_no_safari`), abrir qualquer app
+pelo nome (`abrir_aplicativo`), e ajustes de sistema (volume, brilho, modo
+escuro, print, atalhos — ver abaixo). Mais ações (arquivos, calendário,
+etc.) entram aqui conforme a Fase 2 avança. Exige permissão de Automação
+do macOS na primeira execução (Ajustes do Sistema > Privacidade e
+Segurança > Automação).
+
+**Limitações conhecidas dos ajustes de sistema:**
+- **Brilho**: só relativo (sobe/desce em passos) — o macOS não tem comando
+  nativo para definir uma porcentagem exata, diferente do volume.
+- **Modo de Foco**: não existe comando nativo para ativar um Modo de Foco
+  específico. `ativar_modo_foco` roda um atalho do app Atalhos pelo nome
+  — o usuário precisa **criar esse atalho manualmente no app Atalhos
+  primeiro** (ex: um atalho chamado "Foco Trabalho" que ativa esse modo).
+  Sem o atalho criado, a ferramenta retorna erro.
 
 ## Pontos de teste desta entrega (Safari — Fase 2)
 
@@ -205,6 +218,29 @@ python test_safari.py
       site Y" numa conversa normal, confirmando que a IA escolhe a
       ferramenta certa para cada pedido
 - [ ] Testar um comando ambíguo (ex: "abre o Google") e ver como reage
+
+## Pontos de teste desta entrega (ajustes de sistema — Fase 2)
+
+Só pode ser testado no Mac. **Cuidado**: mexe de verdade no volume/brilho/
+modo escuro da máquina.
+
+```bash
+python test_system.py
+```
+
+- [ ] Volume: definir um valor exato ("coloca o volume em 30%") e ajustar
+      relativo ("aumenta o volume", "abaixa um pouco")
+- [ ] Silenciar e reativar o som
+- [ ] Brilho: só relativo ("aumenta o brilho") — confirmar que reage em
+      passos, sem tentar pedir uma porcentagem exata
+- [ ] Modo escuro: ligar, desligar, e alternar sem especificar
+- [ ] Print de tela: confirmar que salva um arquivo `.png` na Área de
+      Trabalho
+- [ ] Modo de Foco: criar um atalho de teste no app Atalhos (ex:
+      "Foco Teste") e confirmar que `ativar_modo_foco` consegue rodá-lo;
+      testar também pedir um Modo de Foco **sem** atalho criado e
+      confirmar que a IA avisa que precisa criar o atalho primeiro, em
+      vez de fingir que funcionou
 
 ## Pontos de teste desta entrega (memória de longo prazo)
 
