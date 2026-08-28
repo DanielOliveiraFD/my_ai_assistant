@@ -1,6 +1,7 @@
 """Fala de volta via Piper, com troca automática de voz PT/EN conforme o texto."""
 
 import io
+import re
 import wave
 
 import sounddevice as sd
@@ -12,6 +13,22 @@ from jarvis import config
 DetectorFactory.seed = 0  # torna a detecção de idioma determinística
 
 _voice_cache = {}
+
+
+def _strip_markdown(text: str) -> str:
+    """Remove formatação Markdown (negrito, itálico, marcadores de lista,
+    títulos, código) antes de falar — sem isso, o Piper lê os símbolos em
+    voz alta (ex: "asterisco, asterisco, Hoje, asterisco, asterisco").
+    O cérebro é instruído a evitar formatação, mas isso serve de garantia
+    mesmo quando ele esquece, como em respostas mais longas."""
+    text = re.sub(r"\*\*(.*?)\*\*", r"\1", text)
+    text = re.sub(r"__(.*?)__", r"\1", text)
+    text = re.sub(r"\*(.*?)\*", r"\1", text)
+    text = re.sub(r"(?<!\w)_(.*?)_(?!\w)", r"\1", text)
+    text = re.sub(r"`([^`]*)`", r"\1", text)
+    text = re.sub(r"^#{1,6}\s*", "", text, flags=re.MULTILINE)
+    text = re.sub(r"^[*\-]\s+", "", text, flags=re.MULTILINE)
+    return text
 
 
 def _load_voice(lang: str) -> PiperVoice:
@@ -36,6 +53,7 @@ def _detect_language(text: str) -> str:
 def speak(text: str):
     if not text:
         return
+    text = _strip_markdown(text)
     lang = _detect_language(text)
     voice = _load_voice(lang)
 
