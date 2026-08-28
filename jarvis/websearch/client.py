@@ -13,12 +13,22 @@ buscar_na_web.
 """
 
 import json
+import ssl
 import urllib.request
+
+import certifi
 
 from jarvis import config
 
 API_URL = "https://api.tavily.com/search"
 TIMEOUT_SECONDS = 15
+
+# Alguns Pythons instalados no macOS (via python.org) não vêm com os
+# certificados raiz do sistema configurados, causando
+# CERTIFICATE_VERIFY_FAILED em qualquer chamada HTTPS via urllib. O certifi
+# fornece um bundle de certificados próprio, independente da configuração
+# do sistema.
+_SSL_CONTEXT = ssl.create_default_context(cafile=certifi.where())
 
 
 def search(query: str) -> str:
@@ -39,7 +49,9 @@ def search(query: str) -> str:
     )
 
     try:
-        with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:
+        with urllib.request.urlopen(
+            request, timeout=TIMEOUT_SECONDS, context=_SSL_CONTEXT
+        ) as response:
             data = json.loads(response.read().decode("utf-8"))
     except Exception as exc:
         return f"Não consegui buscar na web agora ({exc})."
