@@ -1,5 +1,13 @@
 #!/bin/bash
 # Gerado a partir deste template por macos/build_app.sh — não editar aqui
 # dentro do .app final, editar o template e rodar build_app.sh de novo.
+#
+# Aberto via Finder (duplo clique), não tem terminal nenhum atrás pra
+# mostrar erros — por isso tudo é redirecionado para jarvis/logs/. Sem
+# isso, uma falha na inicialização (ex: dependência faltando) acontece em
+# silêncio, sem nenhum sinal visível pro usuário.
 cd "{{PROJECT_DIR}}"
-exec "{{PYTHON_BIN}}" -m jarvis.app
+mkdir -p "{{PROJECT_DIR}}/jarvis/logs"
+exec "{{PYTHON_BIN}}" -m jarvis.app \
+    >> "{{PROJECT_DIR}}/jarvis/logs/jarvis.log" \
+    2>> "{{PROJECT_DIR}}/jarvis/logs/jarvis.error.log"
