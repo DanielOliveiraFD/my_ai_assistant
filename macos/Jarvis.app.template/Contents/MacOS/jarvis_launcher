@@ -1,0 +1,5 @@
+#!/bin/bash
+# Gerado a partir deste template por macos/build_app.sh — não editar aqui
+# dentro do .app final, editar o template e rodar build_app.sh de novo.
+cd "{{PROJECT_DIR}}"
+exec "{{PYTHON_BIN}}" -m jarvis.app

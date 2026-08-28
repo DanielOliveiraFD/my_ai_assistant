@@ -107,7 +107,9 @@ jarvis/
   logs/                          # saída do LaunchAgent (não versionado)
   memory.sqlite3                # banco de memória de longo prazo (não versionado)
 macos/
-  com.danielofd.jarvis.plist.template  # modelo do LaunchAgent
+  Jarvis.app.template/                  # modelo do app clicável (recomendado)
+  build_app.sh                           # monta macos/Jarvis.app (não versionado)
+  com.danielofd.jarvis.plist.template  # modelo do LaunchAgent (opcional, auto-início)
   install_launch_agent.sh               # instala e carrega o LaunchAgent
   uninstall_launch_agent.sh             # remove o LaunchAgent
   README.md                             # instruções detalhadas
@@ -177,11 +179,12 @@ memória, seguindo a seção 7 do documento de arquitetura de memória:
       que o comportamento do assistente muda de fato nas respostas
       seguintes, mesmo em uma sessão nova.
 
-## Pontos de teste desta entrega (LaunchAgent + barra de menu)
+## Pontos de teste desta entrega (app de barra de menu)
 
-Fecha a Fase 1. Só pode ser testado no Mac:
+Fecha a Fase 1. Só pode ser testado no Mac. Por padrão o Jarvis **não** abre
+sozinho no login — você abre quando quiser, como qualquer outro app.
 
-1. **App de barra de menu isolado primeiro** (sem LaunchAgent ainda):
+1. **Direto por Python primeiro** (mais rápido de iterar):
    ```bash
    python -m jarvis.app
    ```
@@ -195,13 +198,16 @@ Fecha a Fase 1. Só pode ser testado no Mac:
          programa
    - [ ] "Sair" fecha o app completamente (não aparece mais na barra)
 
-2. **LaunchAgent** (depois do app isolado funcionar):
+2. **App clicável** (ver `macos/README.md`):
    ```bash
-   macos/install_launch_agent.sh
+   macos/build_app.sh
    ```
-   - [ ] O ícone aparece sozinho, sem você ter rodado nada no Terminal
-   - [ ] Reiniciar o Mac: o ícone volta a aparecer sozinho, sem login manual
-         nem Terminal aberto
-   - [ ] Ligar/Desligar continuam funcionando normalmente rodando via
-         LaunchAgent
-   - [ ] Se algo não aparecer, checar `jarvis/logs/jarvis.error.log`
+   - [ ] Dois cliques em `macos/Jarvis.app` abre o Jarvis (mesmo
+         comportamento do item 1, sem precisar de Terminal)
+   - [ ] Fechar o app (Sair no menu) e abrir de novo com dois cliques
+         funciona normalmente
+   - [ ] Reiniciar o Mac: o Jarvis **não** abre sozinho (comportamento
+         esperado — só abre quando você clicar)
+
+O LaunchAgent (auto-início no login) continua disponível como opção à parte
+em `macos/README.md`, mas não é o caminho padrão do projeto.

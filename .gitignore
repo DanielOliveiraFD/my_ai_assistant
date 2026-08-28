@@ -20,5 +20,8 @@ jarvis/models/*.json
 jarvis/logs/*.log
 !jarvis/logs/.gitkeep
 
+# App gerado (caminhos específicos da máquina) — só o template é versionado
+macos/Jarvis.app
+
 # macOS
 .DS_Store
