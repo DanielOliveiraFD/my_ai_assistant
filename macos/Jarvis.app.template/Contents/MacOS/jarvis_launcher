@@ -8,6 +8,13 @@
 # silêncio, sem nenhum sinal visível pro usuário.
 cd "{{PROJECT_DIR}}"
 mkdir -p "{{PROJECT_DIR}}/jarvis/logs"
+
+# O processo real (o interpretador Python do venv) fica fora da estrutura
+# do .app — sem isso, o macOS pode não conseguir ligar o processo ao nosso
+# Info.plist (onde está a permissão de microfone), e nega o acesso em
+# silêncio em vez de perguntar. Essa variável força a identificação certa.
+export __CFBundleIdentifier="com.danielofd.jarvis"
+
 exec "{{PYTHON_BIN}}" -m jarvis.app \
     >> "{{PROJECT_DIR}}/jarvis/logs/jarvis.log" \
     2>> "{{PROJECT_DIR}}/jarvis/logs/jarvis.error.log"
