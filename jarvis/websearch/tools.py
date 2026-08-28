@@ -12,15 +12,15 @@ TOOLS = [
         "function": {
             "name": "buscar_na_web",
             "description": (
-                "Busca informação atual na internet quando você não sabe a "
-                "resposta ou ela pode ter mudado (ex: clima, notícias, "
-                "preços, eventos recentes, fatos específicos). Não abre "
-                "nenhum navegador no computador do usuário — a busca "
-                "acontece só aqui, o resultado volta como texto pra você "
-                "ler e responder. Se o usuário também quiser ver a página "
-                "aberta no Safari (não só ouvir a resposta), chame "
-                "TAMBÉM pesquisar_no_safari com o mesmo termo, na mesma "
-                "resposta — as duas não são excludentes."
+                "Busca informação atual na internet e te deixa responder "
+                "por voz. É a ferramenta PADRÃO sempre que o usuário "
+                "pedir para 'pesquisar'/'procurar' algo SEM mencionar "
+                "Safari ou navegador — nesse caso, use só esta, não abra "
+                "nenhum navegador. Não abre nada visível no computador do "
+                "usuário — a busca acontece só aqui, o resultado volta "
+                "como texto pra você ler e responder falando. Só chame "
+                "TAMBÉM pesquisar_no_safari se o usuário mencionar "
+                "explicitamente o Safari/navegador."
             ),
             "parameters": {
                 "type": "object",
