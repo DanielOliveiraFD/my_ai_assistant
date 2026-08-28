@@ -10,13 +10,27 @@ esperar "Ok Nyx". Se nada for capturado logo após o wake word, pergunta
 interrompido de fora (usado pelo app de barra de menu, jarvis/app.py, no
 botão Desligar) — checado a cada pedaço de áudio lido, sem travar o loop
 até o próximo wake word.
+
+Imprime a duração de cada etapa (transcrição, cérebro, fala) para
+diagnosticar onde o tempo está indo entre parar de falar e ouvir a
+resposta.
 """
+
+import time
 
 from jarvis import config
 from jarvis.brain.chat import Brain
 from jarvis.stt.transcribe import record_command, transcribe
 from jarvis.tts.speak import speak
 from jarvis.wakeword.listener import WakeWordListener
+
+
+def _timed(label, func, *args, **kwargs):
+    start = time.monotonic()
+    result = func(*args, **kwargs)
+    elapsed = time.monotonic() - start
+    print(f"[tempo] {label}: {elapsed:.2f}s")
+    return result
 
 
 def _listen_after_wakeword(stop_event=None) -> str:
@@ -28,8 +42,8 @@ def _listen_after_wakeword(stop_event=None) -> str:
         if stop_event is not None and stop_event.is_set():
             return ""
 
-        audio = record_command(stop_event=stop_event)
-        text = transcribe(audio)
+        audio = _timed("gravação (até detectar silêncio)", record_command, stop_event=stop_event)
+        text = _timed("transcrição (Groq Whisper)", transcribe, audio)
         print(f"[usuário disse] {text}")
 
         if text:
@@ -58,9 +72,9 @@ def run(stop_event=None):
         text = _listen_after_wakeword(stop_event=stop_event)
 
         while text:
-            reply = brain.ask(text)
+            reply = _timed("cérebro (Groq)", brain.ask, text)
             print(f"[Nyx responde] {reply}")
-            speak(reply)
+            _timed("fala (Piper)", speak, reply)
 
             if stop_event is not None and stop_event.is_set():
                 break
@@ -68,10 +82,13 @@ def run(stop_event=None):
             # Janela de acompanhamento: escuta mais um pouco sem exigir o
             # wake word de novo. Silêncio total aqui é normal (usuário
             # terminou de usar) — não pergunta "continua ouvindo".
-            followup_audio = record_command(
-                pre_speech_timeout=config.FOLLOWUP_LISTEN_SECONDS, stop_event=stop_event
+            followup_audio = _timed(
+                "gravação (janela de acompanhamento)",
+                record_command,
+                pre_speech_timeout=config.FOLLOWUP_LISTEN_SECONDS,
+                stop_event=stop_event,
             )
-            text = transcribe(followup_audio)
+            text = _timed("transcrição (Groq Whisper)", transcribe, followup_audio)
             if text:
                 print(f"[usuário disse] {text}")
 
