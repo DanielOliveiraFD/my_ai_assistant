@@ -1,12 +1,35 @@
-"""Ferramentas de ação no Safari expostas ao cérebro: schema (formato
+"""Ferramentas de ação no macOS expostas ao cérebro: schema (formato
 OpenAI/Groq) e as funções que executam.
 
 Isoladas do resto do projeto — só jarvis/brain/chat.py importa daqui.
 """
 
-from jarvis.actions import safari
+from jarvis.actions import apps, safari
 
 TOOLS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "abrir_aplicativo",
+            "description": (
+                "Abre um aplicativo do Mac pelo nome (ex: 'Safari', "
+                "'Spotify', 'Calendário', 'Notas'), sem fazer nenhuma "
+                "busca ou ação dentro dele. Use quando o usuário só quer "
+                "abrir o programa (ex: 'abre o Safari'), sem pedir mais "
+                "nada específico junto."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "nome": {
+                        "type": "string",
+                        "description": "Nome do aplicativo, ex: 'Safari'.",
+                    }
+                },
+                "required": ["nome"],
+            },
+        },
+    },
     {
         "type": "function",
         "function": {
@@ -50,6 +73,10 @@ TOOLS = [
 ]
 
 
+def abrir_aplicativo(nome: str) -> dict:
+    return {"resultado": apps.open_app(nome)}
+
+
 def pesquisar_no_safari(termo: str) -> dict:
     return {"resultado": safari.search(termo)}
 
@@ -59,6 +86,7 @@ def abrir_site_no_safari(url: str) -> dict:
 
 
 DISPATCH = {
+    "abrir_aplicativo": abrir_aplicativo,
     "pesquisar_no_safari": pesquisar_no_safari,
     "abrir_site_no_safari": abrir_site_no_safari,
 }
