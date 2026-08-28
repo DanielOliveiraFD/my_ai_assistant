@@ -8,7 +8,7 @@ vira o modelo principal da conversa — só responde perguntas pontuais aqui,
 isoladamente, e o resultado volta como texto para o cérebro principal.
 """
 
-from groq import Groq
+from groq import Groq, GroqError
 
 from jarvis import config
 
@@ -18,18 +18,27 @@ _client = Groq(api_key=config.GROQ_API_KEY)
 
 
 def search(query: str) -> str:
-    response = _client.chat.completions.create(
-        model=MODEL,
-        messages=[
-            {
-                "role": "system",
-                "content": (
-                    "Responda à pergunta usando busca na web quando necessário. "
-                    "Seja direto e breve, sem enrolação — a resposta vai ser "
-                    "repassada para outro assistente de voz."
-                ),
-            },
-            {"role": "user", "content": query},
-        ],
-    )
-    return response.choices[0].message.content.strip()
+    try:
+        response = _client.chat.completions.create(
+            model=MODEL,
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Responda à pergunta usando busca na web quando necessário. "
+                        "Seja direto e breve, sem enrolação — a resposta vai ser "
+                        "repassada para outro assistente de voz."
+                    ),
+                },
+                {"role": "user", "content": query},
+            ],
+            # Restringe às ferramentas embutidas do Compound só à busca —
+            # sem isso, o conjunto completo (busca, execução de código,
+            # Wolfram Alpha, visitar site) parece pesar no tamanho da
+            # requisição o suficiente pra estourar limite mesmo em
+            # perguntas curtas (visto no teste manual: erro 413).
+            compound_custom={"tools": {"enabled_tools": ["web_search"]}},
+        )
+        return response.choices[0].message.content.strip()
+    except GroqError as exc:
+        return f"Não consegui buscar na web agora ({exc})."
