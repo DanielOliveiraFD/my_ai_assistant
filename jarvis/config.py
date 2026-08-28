@@ -53,3 +53,10 @@ FOLLOWUP_PROMPT = {
     "en": "Go on, I'm listening.",
 }
 MAX_FOLLOWUP_ATTEMPTS = 2  # quantas vezes pergunta antes de desistir
+
+# --- Janela de acompanhamento (pós-resposta) ---
+# Depois de falar a resposta, escuta por esse tempo sem exigir o wake word
+# de novo. Se o usuário começar a falar dentro da janela, processa normal
+# (com o corte de fim de frase de sempre); se passar em silêncio total,
+# volta a exigir "Ok Nyx".
+FOLLOWUP_LISTEN_SECONDS = 5.0

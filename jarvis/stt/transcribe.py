@@ -28,13 +28,23 @@ def _rms(chunk: np.ndarray) -> float:
     return float(np.sqrt(np.mean(chunk.astype(np.float64) ** 2)))
 
 
-def record_command() -> np.ndarray:
-    """Grava áudio do microfone até detectar um período de silêncio
-    (config.SILENCE_TIMEOUT_SECONDS), indicando que o usuário terminou de
-    falar."""
+def record_command(pre_speech_timeout: float | None = None) -> np.ndarray:
+    """Grava áudio do microfone até detectar silêncio depois do usuário falar.
+
+    `pre_speech_timeout` é quanto tempo esperar em silêncio ANTES do usuário
+    começar a falar, antes de desistir (retorna áudio vazio) — usado na
+    janela de acompanhamento pós-resposta, que é mais longa que o padrão.
+    Se None, usa config.SILENCE_TIMEOUT_SECONDS (comportamento padrão logo
+    após o wake word). Depois que a fala começa, sempre usa
+    config.SILENCE_TIMEOUT_SECONDS como corte de silêncio de fim de frase.
+    """
+    if pre_speech_timeout is None:
+        pre_speech_timeout = config.SILENCE_TIMEOUT_SECONDS
+
     frames = []
     silence_seconds = 0.0
     total_seconds = 0.0
+    has_spoken = False
 
     with sd.InputStream(
         samplerate=SAMPLE_RATE, channels=1, dtype="int16", blocksize=CHUNK_SAMPLES
@@ -48,12 +58,16 @@ def record_command() -> np.ndarray:
             if _rms(chunk) < SILENCE_RMS_THRESHOLD:
                 silence_seconds += CHUNK_MS / 1000
             else:
+                has_spoken = True
                 silence_seconds = 0.0
 
-            if silence_seconds >= config.SILENCE_TIMEOUT_SECONDS:
+            timeout = config.SILENCE_TIMEOUT_SECONDS if has_spoken else pre_speech_timeout
+            if silence_seconds >= timeout:
                 break
 
-    return np.concatenate(frames) if frames else np.array([], dtype=np.int16)
+    if not has_spoken:
+        return np.array([], dtype=np.int16)
+    return np.concatenate(frames)
 
 
 def _to_wav_bytes(audio: np.ndarray) -> bytes:
