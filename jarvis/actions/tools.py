@@ -36,9 +36,12 @@ TOOLS = [
             "name": "pesquisar_no_safari",
             "description": (
                 "Pesquisa um termo no Google, abrindo o Safari numa aba "
-                "nova. Use quando o usuário pedir para pesquisar/procurar "
-                "algo na internet (diferente de buscar_na_web, que só "
-                "traz informação pra responder, sem abrir nada visível)."
+                "nova. Só abre a página — não traz o conteúdo dela pra "
+                "você ler ou falar. Se o usuário também quiser saber a "
+                "resposta falada (ex: 'pesquisa e me fala', 'pesquisa e "
+                "me diz'), chame TAMBÉM buscar_na_web com a mesma "
+                "pergunta, na mesma resposta — as duas não são "
+                "excludentes."
             ),
             "parameters": {
                 "type": "object",

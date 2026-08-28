@@ -16,7 +16,11 @@ TOOLS = [
                 "resposta ou ela pode ter mudado (ex: clima, notícias, "
                 "preços, eventos recentes, fatos específicos). Não abre "
                 "nenhum navegador no computador do usuário — a busca "
-                "acontece só aqui, o resultado volta como texto."
+                "acontece só aqui, o resultado volta como texto pra você "
+                "ler e responder. Se o usuário também quiser ver a página "
+                "aberta no Safari (não só ouvir a resposta), chame "
+                "TAMBÉM pesquisar_no_safari com o mesmo termo, na mesma "
+                "resposta — as duas não são excludentes."
             ),
             "parameters": {
                 "type": "object",
