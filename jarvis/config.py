@@ -44,8 +44,10 @@ PIPER_VOICES = {
 }
 DEFAULT_TTS_LANGUAGE = "pt"
 
-# --- Escuta inteligente com pausa ---
-SILENCE_TIMEOUT_SECONDS = 2.0  # silêncio até perguntar "continua ouvindo?"
+# --- Detecção de fim de fala ---
+SILENCE_TIMEOUT_SECONDS = 1.2  # silêncio até considerar que terminou de falar
+# "Continua, estou ouvindo?" só é usado quando NADA foi capturado (silêncio
+# total após o wake word) — não a cada pausa normal de fim de frase.
 FOLLOWUP_PROMPT = {
     "pt": "Continua, estou ouvindo.",
     "en": "Go on, I'm listening.",

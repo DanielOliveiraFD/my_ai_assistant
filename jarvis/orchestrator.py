@@ -1,7 +1,8 @@
 """Loop principal do Jarvis Caseiro (Fase 1 — MVP conversacional, sem ferramentas).
 
-Ciclo: espera "Ok Nyx" -> grava comando (com escuta inteligente de pausa) ->
-transcreve -> pergunta ao cérebro -> fala a resposta -> volta a escutar.
+Ciclo: espera "Ok Nyx" -> grava comando -> transcreve -> pergunta ao cérebro
+-> fala a resposta -> volta a escutar. Se nada for capturado (silêncio
+total), pergunta "continua, estou ouvindo?" antes de desistir.
 """
 
 from jarvis import config
@@ -24,19 +25,16 @@ def run():
         listener.wait_for_wakeword()
         print("[wake word detectada]")
 
-        followups_used = 0
+        text = ""
+        for attempt in range(config.MAX_FOLLOWUP_ATTEMPTS + 1):
+            audio = record_command()
+            text = transcribe(audio)
+            print(f"[usuário disse] {text}")
 
-        def on_silence_timeout():
-            nonlocal followups_used
-            if followups_used >= config.MAX_FOLLOWUP_ATTEMPTS:
-                return False
-            followups_used += 1
-            speak(config.FOLLOWUP_PROMPT[config.DEFAULT_TTS_LANGUAGE])
-            return True
-
-        audio = record_command(on_silence_timeout=on_silence_timeout)
-        text = transcribe(audio)
-        print(f"[usuário disse] {text}")
+            if text:
+                break
+            if attempt < config.MAX_FOLLOWUP_ATTEMPTS:
+                speak(config.FOLLOWUP_PROMPT[config.DEFAULT_TTS_LANGUAGE])
 
         if not text:
             continue

@@ -1,8 +1,9 @@
 """Gravação de comando de voz e transcrição via Groq Whisper.
 
-Reaproveita a mesma API key do Groq já usada pelo FreeFlow. Implementa a
-"escuta inteligente com pausa": se o usuário fica em silêncio no meio da
-frase, grava um pouco mais em vez de cortar o comando.
+Reaproveita a mesma API key do Groq já usada pelo FreeFlow. A gravação para
+assim que detecta silêncio (fim natural da fala) — a lógica de "continua
+ouvindo?" fica em jarvis/orchestrator.py, e só entra em ação quando nada foi
+capturado, não a cada pausa normal de fim de frase.
 """
 
 import io
@@ -27,12 +28,10 @@ def _rms(chunk: np.ndarray) -> float:
     return float(np.sqrt(np.mean(chunk.astype(np.float64) ** 2)))
 
 
-def record_command(on_silence_timeout=None) -> np.ndarray:
-    """Grava áudio do microfone até detectar fim de comando.
-
-    `on_silence_timeout` é chamado quando o usuário pausa por tempo demais;
-    deve retornar True para continuar escutando ou False para encerrar.
-    """
+def record_command() -> np.ndarray:
+    """Grava áudio do microfone até detectar um período de silêncio
+    (config.SILENCE_TIMEOUT_SECONDS), indicando que o usuário terminou de
+    falar."""
     frames = []
     silence_seconds = 0.0
     total_seconds = 0.0
@@ -52,13 +51,7 @@ def record_command(on_silence_timeout=None) -> np.ndarray:
                 silence_seconds = 0.0
 
             if silence_seconds >= config.SILENCE_TIMEOUT_SECONDS:
-                if frames and on_silence_timeout is not None:
-                    keep_listening = on_silence_timeout()
-                    if not keep_listening:
-                        break
-                    silence_seconds = 0.0
-                else:
-                    break
+                break
 
     return np.concatenate(frames) if frames else np.array([], dtype=np.int16)
 
