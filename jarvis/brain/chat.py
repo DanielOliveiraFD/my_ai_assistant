@@ -21,6 +21,19 @@ TOOLS = MEMORY_TOOLS + WEBSEARCH_TOOLS + ACTIONS_TOOLS
 DISPATCH = {**MEMORY_DISPATCH, **WEBSEARCH_DISPATCH, **ACTIONS_DISPATCH}
 
 MAX_TOOL_ROUNDS = 5
+MAX_HISTORY_TURNS = 6  # trocas (usuário + resposta) mantidas; mais antigas são descartadas
+
+
+def _trim_history(history: list[dict]) -> list[dict]:
+    """Mantém só as últimas MAX_HISTORY_TURNS trocas, sempre preservando a
+    mensagem de sistema (índice 0). Sem isso, o histórico cresce sem limite
+    numa sessão longa, deixando cada resposta mais lenta (mais contexto pra
+    reenviar ao Groq a cada pergunta) — visto no teste manual."""
+    user_indices = [i for i, m in enumerate(history) if m["role"] == "user"]
+    if len(user_indices) <= MAX_HISTORY_TURNS:
+        return history
+    cutoff = user_indices[-MAX_HISTORY_TURNS]
+    return [history[0]] + history[cutoff:]
 
 
 def _build_system_prompt() -> str:
@@ -51,6 +64,7 @@ class Brain:
 
             if not result.is_tool_call:
                 self.history.append({"role": "assistant", "content": result.content})
+                self.history = _trim_history(self.history)
                 return result.content
 
             self.history.append(
@@ -83,6 +97,7 @@ class Brain:
 
         fallback = "Desculpa, não consegui concluir isso agora."
         self.history.append({"role": "assistant", "content": fallback})
+        self.history = _trim_history(self.history)
         return fallback
 
     def _execute_tool(self, name: str, arguments: dict) -> dict:
