@@ -38,7 +38,6 @@ def search(query: str) -> str:
     payload = {
         "api_key": config.TAVILY_API_KEY,
         "query": query,
-        "include_answer": True,
         "max_results": 3,
     }
     request = urllib.request.Request(
@@ -56,10 +55,11 @@ def search(query: str) -> str:
     except Exception as exc:
         return f"Não consegui buscar na web agora ({exc})."
 
-    answer = data.get("answer")
-    if answer:
-        return answer
-
+    # Não usa o campo "answer" da Tavily de propósito: ele não segue o
+    # idioma da pergunta (visto no teste manual: pergunta em português,
+    # resposta pronta em inglês). Devolvendo só os resultados brutos, quem
+    # formula a resposta final é o cérebro principal — que já segue
+    # corretamente o idioma do usuário.
     results = data.get("results", [])
     if not results:
         return "Não encontrei nada relevante sobre isso."
