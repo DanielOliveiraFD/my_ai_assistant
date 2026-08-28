@@ -1,6 +1,7 @@
 """Escuta contínua do microfone até detectar a palavra de ativação ("Ok Nyx")."""
 
 import numpy as np
+import openwakeword.utils
 import sounddevice as sd
 from openwakeword.model import Model
 
@@ -17,6 +18,10 @@ class WakeWordListener:
                 f"Modelo de wake word não encontrado em {config.WAKEWORD_MODEL_PATH}. "
                 "Treine o modelo customizado (ver README) e coloque o .onnx nesse caminho."
             )
+        # O pip install do openwakeword não inclui os modelos compartilhados de
+        # pré-processamento (melspectrogram + embedding) — precisam ser
+        # baixados uma vez. A própria função pula o download se já existirem.
+        openwakeword.utils.download_models()
         self.model = Model(
             wakeword_models=[str(config.WAKEWORD_MODEL_PATH)],
             inference_framework="onnx",
