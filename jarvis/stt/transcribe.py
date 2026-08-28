@@ -19,6 +19,7 @@ SAMPLE_RATE = 16000
 CHUNK_MS = 100
 CHUNK_SAMPLES = int(SAMPLE_RATE * CHUNK_MS / 1000)
 SILENCE_RMS_THRESHOLD = 300  # ajustar conforme ambiente/microfone real
+MIN_SPEECH_MS = 300  # som contínuo mínimo pra contar como "começou a falar"
 MAX_RECORDING_SECONDS = 30
 
 _client = Groq(api_key=config.GROQ_API_KEY)
@@ -40,6 +41,12 @@ def record_command(pre_speech_timeout: float | None = None, stop_event=None) -> 
 
     `stop_event`, se marcado no meio da gravação, interrompe e retorna o que
     já foi capturado até então (usado pelo app de barra de menu).
+
+    Exige MIN_SPEECH_MS de som contínuo acima do limiar antes de considerar
+    que a fala realmente começou — um ruído pontual (batida, clique, tosse)
+    sozinho não basta. Sem isso, um áudio curto e majoritariamente vazio
+    pode ser mandado pro Whisper, que às vezes "alucina" uma frase em vez
+    de retornar vazio.
     """
     if pre_speech_timeout is None:
         pre_speech_timeout = config.SILENCE_TIMEOUT_SECONDS
@@ -47,6 +54,7 @@ def record_command(pre_speech_timeout: float | None = None, stop_event=None) -> 
     frames = []
     silence_seconds = 0.0
     total_seconds = 0.0
+    consecutive_speech_ms = 0.0
     has_spoken = False
 
     with sd.InputStream(
@@ -62,9 +70,12 @@ def record_command(pre_speech_timeout: float | None = None, stop_event=None) -> 
 
             if _rms(chunk) < SILENCE_RMS_THRESHOLD:
                 silence_seconds += CHUNK_MS / 1000
+                consecutive_speech_ms = 0.0
             else:
-                has_spoken = True
                 silence_seconds = 0.0
+                consecutive_speech_ms += CHUNK_MS
+                if consecutive_speech_ms >= MIN_SPEECH_MS:
+                    has_spoken = True
 
             timeout = config.SILENCE_TIMEOUT_SECONDS if has_spoken else pre_speech_timeout
             if silence_seconds >= timeout:
